@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LessonForge — AI Lesson Generator (with Afrikaans)</title>
+  <meta name="description" content="Create curriculum-aligned, differentiated, classroom-ready lessons in seconds. Supports English and Afrikaans." />
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff', 100: '#e0f2fe', 200: '#bae6fd', 300: '#7dd3fc',
+              400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1',
+              800: '#075985', 900: '#0c4a6e',
+            },
+            accent: {
+              50: '#fdf4ff', 100: '#fae8ff', 200: '#f5d0fe', 300: '#f0abfc',
+              400: '#e879f9', 500: '#d946ef', 600: '#c026d3',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .gradient-text {
+      background: linear-gradient(135deg, #0ea5e9 0%, #d946ef 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-gradient {
+      background: 
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(14, 165, 233, 0.15), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 50%, rgba(217, 70, 239, 0.08), transparent);
+    }
+    .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -12px rgba(0,0,0,0.12); }
+    .glass {
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    @keyframes pulse-soft {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    .animate-pulse-soft { animation: pulse-soft 1.5s ease-in-out infinite; }
+    @keyframes slide-up {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-slide-up { animation: slide-up 0.5s ease-out forwards; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+
+  <!-- Navigation -->
+  <nav class="fixed top-0 left-0 right-0 z-50 glass border-b border-slate-200/60">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-3 cursor-pointer" onclick="showLanding()">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-accent-500 flex items-center justify-center shadow-lg shadow-brand-500/20">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+          </div>
+          <span class="text-xl font-bold tracking-tight">Lesson<span class="text-brand-600">Forge</span></span>
+        </div>
+        
+        <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
+          <a href="#features" class="hover:text-brand-600 transition">Features</a>
+          <a href="#how-it-works" class="hover:text-brand-600 transition">How it works</a>
+          <a href="#pricing" class="hover:text-brand-600 transition">Pricing</a>
+        </div>
+        
+        <div class="flex items-center gap-3">
+          <button onclick="showApp()" class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-lg shadow-brand-600/25 transition active:scale-[0.98]">
+            Start creating free
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- LANDING -->
+  <div id="landing">
+    <section class="hero-gradient pt-28 pb-20 sm:pt-36 sm:pb-28">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-4xl mx-auto">
+          <div class="inline-flex items-center gap-2 bg-brand-50 text-brand-700 text-sm font-medium px-3 py-1.5 rounded-full mb-6 border border-brand-100">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
+            </span>
+            Now with full Afrikaans support 🇿🇦
+          </div>
+          
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 mb-6 leading-[1.1]">
+            Your best lesson.<br>
+            <span class="gradient-text">Every single time.</span>
+          </h1>
+          
+          <p class="text-lg sm:text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+            Curriculum-aligned slides, differentiated worksheets and activities — generated in seconds. 
+            Fully supports <strong>English</strong> and <strong>Afrikaans</strong>.
+          </p>
+          
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+            <button onclick="showApp()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-base font-semibold px-8 py-4 rounded-2xl shadow-xl shadow-brand-600/30 transition active:scale-[0.98]">
+              Create your first lesson free
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+              </svg>
+            </button>
+          </div>
+          
+          <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-slate-500">
+            <div class="flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span>English + Afrikaans · 48 curricula</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+              <span>Built for South African & international teachers</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="py-20 sm:py-28 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">
+            Better than Chalkie — <span class="gradient-text">with Afrikaans built in</span>
+          </h2>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="card-hover bg-slate-50 border border-slate-100 rounded-2xl p-6">
+            <div class="w-12 h-12 rounded-xl bg-brand-100 flex items-center justify-center mb-4">
+              <svg class="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <h3 class="text-lg font-bold mb-2">Real AI generation</h3>
+            <p class="text-slate-600 text-sm leading-relaxed">Powered by GPT-4o-mini. Full lessons, not templates. Works offline in demo mode if no API key.</p>
+          </div>
+          
+          <div class="card-hover bg-slate-50 border border-slate-100 rounded-2xl p-6">
+            <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center mb-4">
+              <span class="text-2xl">🇿🇦</span>
+            </div>
+            <h3 class="text-lg font-bold mb-2">Full Afrikaans support</h3>
+            <p class="text-slate-600 text-sm leading-relaxed">Generate complete lessons, worksheets and exit tickets entirely in natural South African Afrikaans.</p>
+          </div>
+          
+          <div class="card-hover bg-slate-50 border border-slate-100 rounded-2xl p-6">
+            <div class="w-12 h-12 rounded-xl bg-accent-100 flex items-center justify-center mb-4">
+              <svg class="w-6 h-6 text-accent-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </div>
+            <h3 class="text-lg font-bold mb-2">True differentiation</h3>
+            <p class="text-slate-600 text-sm leading-relaxed">Scaffold, Core and Stretch versions of every worksheet — automatically generated.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section id="how-it-works" class="py-20 sm:py-28 bg-slate-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">From idea to classroom in three steps</h2>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-8">
+          <div class="text-center">
+            <div class="w-14 h-14 rounded-2xl bg-brand-600 text-white text-xl font-bold flex items-center justify-center mx-auto mb-5 shadow-lg shadow-brand-600/30">1</div>
+            <h3 class="text-xl font-bold mb-2">Choose language & topic</h3>
+            <p class="text-slate-600 text-sm">Select English or Afrikaans, year group, curriculum and subject.</p>
+          </div>
+          <div class="text-center">
+            <div class="w-14 h-14 rounded-2xl bg-accent-500 text-white text-xl font-bold flex items-center justify-center mx-auto mb-5 shadow-lg shadow-accent-500/30">2</div>
+            <h3 class="text-xl font-bold mb-2">AI generates everything</h3>
+            <p class="text-slate-600 text-sm">Slides, differentiated worksheets, exit tickets — fully in your chosen language.</p>
+          </div>
+          <div class="text-center">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-500 text-white text-xl font-bold flex items-center justify-center mx-auto mb-5 shadow-lg shadow-emerald-500/30">3</div>
+            <h3 class="text-xl font-bold mb-2">Review & use</h3>
+            <p class="text-slate-600 text-sm">Edit if needed, then use directly in class or export.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing -->
+    <section id="pricing" class="py-20 sm:py-28 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">Simple pricing</h2>
+          <p class="text-lg text-slate-600">This is a self-hosted open prototype. Add your own OpenAI key.</p>
+        </div>
+        
+        <div class="max-w-md mx-auto bg-white rounded-2xl border-2 border-brand-500 p-8 shadow-xl shadow-brand-500/10">
+          <div class="text-sm font-semibold text-brand-600 mb-1">Self-hosted</div>
+          <div class="text-4xl font-extrabold mb-1">Free</div>
+          <div class="text-sm text-slate-500 mb-6">You only pay for OpenAI usage</div>
+          <ul class="space-y-3 text-sm text-slate-600 mb-8">
+            <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span> Unlimited generation (your API key)</li>
+            <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span> Full English + Afrikaans support</li>
+            <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span> Differentiated worksheets</li>
+            <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span> Deploy on Render for free tier</li>
+          </ul>
+          <button onclick="showApp()" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold transition shadow-lg shadow-brand-600/25">
+            Start creating
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="border-t border-slate-200 bg-white py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-slate-500">
+        © 2026 LessonForge · Built for teachers · Supports English & Afrikaans · Not affiliated with Chalkie
+      </div>
+    </footer>
+  </div>
+
+  <!-- APP -->
+  <div id="app" class="hidden min-h-screen">
+    <nav class="sticky top-0 z-40 bg-white border-b border-slate-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-14">
+          <div class="flex items-center gap-4">
+            <button onclick="showLanding()" class="flex items-center gap-2 text-slate-600 hover:text-slate-900">
+              <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-accent-500 flex items-center justify-center">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+              </div>
+              <span class="font-bold text-lg hidden sm:inline">Lesson<span class="text-brand-600">Forge</span></span>
+            </button>
+          </div>
+          <div id="ai-status" class="text-xs font-medium text-slate-500 px-3 py-1 rounded-full bg-slate-100">
+            Checking AI...
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      
+      <!-- Create form -->
+      <div id="create-view">
+        <div class="text-center mb-10">
+          <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">What shall we create today?</h1>
+          <p class="text-slate-600">Describe your lesson. Choose English or Afrikaans.</p>
+        </div>
+        
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 mb-8">
+          <form id="lesson-form" onsubmit="generateLesson(event)">
+            <div class="space-y-6">
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Topic or learning objective</label>
+                <textarea id="topic" rows="2" placeholder="e.g. Inleiding tot tektoniese plate vir Graad 9 Aardrykskunde  OR  Introduction to tectonic plates for Year 9 Geography" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition text-slate-800 placeholder:text-slate-400 resize-none" required></textarea>
+              </div>
+              
+              <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Language -->
+                <div>
+                  <label class="block text-sm font-semibold text-slate-700 mb-2">Language / Taal</label>
+                  <select id="language" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition bg-white">
+                    <option value="English">English</option>
+                    <option value="Afrikaans">Afrikaans 🇿🇦</option>
+                  </select>
+                </div>
+                
+                <!-- Year -->
+                <div>
+                  <label class="block text-sm font-semibold text-slate-700 mb-2">Year / Grade</label>
+                  <select id="year" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition bg-white">
+                    <option value="Grade 4 / Year 5">Grade 4 / Year 5</option>
+                    <option value="Grade 5 / Year 6">Grade 5 / Year 6</option>
+                    <option value="Grade 6 / Year 7">Grade 6 / Year 7</option>
+                    <option value="Grade 7 / Year 8">Grade 7 / Year 8</option>
+                    <option value="Grade 8 / Year 9" selected>Grade 8 / Year 9</option>
+                    <option value="Grade 9 / Year 10">Grade 9 / Year 10</option>
+                    <option value="Grade 10 / Year 11">Grade 10 / Year 11</option>
+                    <option value="Grade 11 / Year 12">Grade 11 / Year 12</option>
+                    <option value="Grade 12">Grade 12</option>
+                  </select>
+                </div>
+                
+                <!-- Curriculum -->
+                <div>
+                  <label class="block text-sm font-semibold text-slate-700 mb-2">Curriculum</label>
+                  <select id="curriculum" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition bg-white">
+                    <option value="CAPS (South Africa)" selected>CAPS (South Africa)</option>
+                    <option value="UK National Curriculum">UK National Curriculum</option>
+                    <option value="Australian Curriculum">Australian Curriculum</option>
+                    <option value="Common Core (US)">Common Core (US)</option>
+                    <option value="NGSS">NGSS</option>
+                    <option value="IB MYP">IB MYP</option>
+                    <option value="Cambridge IGCSE">Cambridge IGCSE</option>
+                  </select>
+                </div>
+                
+                <!-- Subject -->
+                <div>
+                  <label class="block text-sm font-semibold text-slate-700 mb-2">Subject</label>
+                  <select id="subject" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition bg-white">
+                    <option value="Geography / Aardrykskunde" selected>Geography / Aardrykskunde</option>
+                    <option value="Science / Wetenskap">Science / Wetenskap</option>
+                    <option value="History / Geskiedenis">History / Geskiedenis</option>
+                    <option value="English / Engels">English / Engels</option>
+                    <option value="Afrikaans">Afrikaans</option>
+                    <option value="Mathematics / Wiskunde">Mathematics / Wiskunde</option>
+                    <option value="Life Sciences">Life Sciences</option>
+                    <option value="Physical Sciences">Physical Sciences</option>
+                    <option value="Life Orientation">Life Orientation</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-3">Include</label>
+                <div class="flex flex-wrap gap-3">
+                  <label class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 cursor-pointer">
+                    <input type="checkbox" id="inc-slides" checked class="rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+                    <span class="text-sm">Lesson slides</span>
+                  </label>
+                  <label class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 cursor-pointer">
+                    <input type="checkbox" id="inc-worksheets" checked class="rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+                    <span class="text-sm">Differentiated worksheets</span>
+                  </label>
+                  <label class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 cursor-pointer">
+                    <input type="checkbox" id="inc-exit" checked class="rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+                    <span class="text-sm">Exit ticket</span>
+                  </label>
+                  <label class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 cursor-pointer">
+                    <input type="checkbox" id="inc-homework" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+                    <span class="text-sm">Homework</span>
+                  </label>
+                </div>
+              </div>
+              
+              <button type="submit" id="generate-btn" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold px-8 py-3.5 rounded-xl shadow-lg shadow-brand-600/25 transition active:scale-[0.98]">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+                Generate lesson
+              </button>
+            </div>
+          </form>
+        </div>
+        
+        <div>
+          <div class="text-sm font-semibold text-slate-500 mb-3">Quick examples</div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="fillExample('Inleiding tot fotosintese vir Graad 7 Wetenskap', 'Afrikaans')" class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-sm text-slate-600 hover:border-brand-300 hover:text-brand-700 transition">Fotosintese · Gr 7 (Afrikaans)</button>
+            <button onclick="fillExample('Introduction to photosynthesis for Grade 7 Science', 'English')" class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-sm text-slate-600 hover:border-brand-300 hover:text-brand-700 transition">Photosynthesis · Gr 7 (English)</button>
+            <button onclick="fillExample('Die oorsake van die Eerste Wêreldoorlog vir Graad 9 Geskiedenis', 'Afrikaans')" class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-sm text-slate-600 hover:border-brand-300 hover:text-brand-700 transition">WW1 Oorsake · Gr 9 (Afrikaans)</button>
+            <button onclick="fillExample('Tectonic plates and plate boundaries for Grade 8 Geography', 'English')" class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-sm text-slate-600 hover:border-brand-300 hover:text-brand-700 transition">Tectonic Plates · Gr 8</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Generating -->
+      <div id="generating-view" class="hidden text-center py-20">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-brand-100 mb-6">
+          <svg class="w-8 h-8 text-brand-600 animate-pulse-soft" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+        </div>
+        <h2 class="text-xl font-bold mb-2">Forging your lesson...</h2>
+        <p class="text-slate-500 mb-6" id="gen-status">Connecting to AI...</p>
+        <div class="w-64 h-1.5 bg-slate-200 rounded-full mx-auto overflow-hidden">
+          <div id="progress-bar" class="h-full bg-gradient-to-r from-brand-500 to-accent-500 rounded-full transition-all duration-700" style="width: 15%"></div>
+        </div>
+        <p class="text-xs text-slate-400 mt-4" id="gen-hint"></p>
+      </div>
+      
+      <!-- Result -->
+      <div id="result-view" class="hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div>
+            <h1 class="text-2xl font-extrabold tracking-tight" id="result-title">Your lesson is ready</h1>
+            <p class="text-slate-500 text-sm mt-1" id="result-meta"></p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="resetCreate()" class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition">
+              ← New lesson
+            </button>
+          </div>
+        </div>
+        
+        <div id="mock-banner" class="hidden mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-800">
+          <strong>Demo mode:</strong> No OpenAI API key detected. Showing high-quality sample content. Add <code class="bg-amber-100 px-1 rounded">OPENAI_API_KEY</code> in your Render environment variables for real AI generation.
+        </div>
+        
+        <div class="flex gap-1 border-b border-slate-200 mb-6 overflow-x-auto">
+          <button onclick="showTab('slides')" id="tab-slides" class="tab-btn active px-4 py-2.5 text-sm font-medium border-b-2 border-brand-600 text-brand-600 whitespace-nowrap">Lesson slides</button>
+          <button onclick="showTab('worksheets')" id="tab-worksheets" class="tab-btn px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap">Worksheets</button>
+          <button onclick="showTab('exit')" id="tab-exit" class="tab-btn px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap">Exit ticket</button>
+        </div>
+        
+        <div id="content-slides" class="space-y-4"></div>
+        
+        <div id="content-worksheets" class="hidden">
+          <div class="grid sm:grid-cols-3 gap-4" id="worksheets-grid"></div>
+        </div>
+        
+        <div id="content-exit" class="hidden">
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8" id="exit-content"></div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <script>
+    // Check AI status on load
+    async function checkHealth() {
+      try {
+        const res = await fetch('/api/health');
+        const data = await res.json();
+        const el = document.getElementById('ai-status');
+        if (data.aiEnabled) {
+          el.textContent = 'AI ready ✓';
+          el.className = 'text-xs font-medium text-emerald-700 px-3 py-1 rounded-full bg-emerald-50';
+        } else {
+          el.textContent = 'Demo mode (no API key)';
+          el.className = 'text-xs font-medium text-amber-700 px-3 py-1 rounded-full bg-amber-50';
+        }
+      } catch (e) {
+        document.getElementById('ai-status').textContent = 'Offline demo';
+      }
+    }
+    
+    function showApp() {
+      document.getElementById('landing').classList.add('hidden');
+      document.getElementById('app').classList.remove('hidden');
+      window.scrollTo(0, 0);
+      checkHealth();
+    }
+    
+    function showLanding() {
+      document.getElementById('app').classList.add('hidden');
+      document.getElementById('landing').classList.remove('hidden');
+      window.scrollTo(0, 0);
+    }
+    
+    function fillExample(text, lang) {
+      document.getElementById('topic').value = text;
+      if (lang) document.getElementById('language').value = lang;
+    }
+    
+    function resetCreate() {
+      document.getElementById('result-view').classList.add('hidden');
+      document.getElementById('create-view').classList.remove('hidden');
+      document.getElementById('topic').value = '';
+    }
+    
+    function showTab(name) {
+      ['slides', 'worksheets', 'exit'].forEach(t => {
+        document.getElementById('content-' + t).classList.add('hidden');
+        const btn = document.getElementById('tab-' + t);
+        btn.classList.remove('active', 'border-brand-600', 'text-brand-600');
+        btn.classList.add('border-transparent', 'text-slate-500');
+      });
+      document.getElementById('content-' + name).classList.remove('hidden');
+      const activeBtn = document.getElementById('tab-' + name);
+      activeBtn.classList.add('active', 'border-brand-600', 'text-brand-600');
+      activeBtn.classList.remove('border-transparent', 'text-slate-500');
+    }
+    
+    async function generateLesson(e) {
+      e.preventDefault();
+      
+      const topic = document.getElementById('topic').value.trim();
+      if (!topic) return;
+      
+      const payload = {
+        topic,
+        year: document.getElementById('year').value,
+        curriculum: document.getElementById('curriculum').value,
+        subject: document.getElementById('subject').value,
+        language: document.getElementById('language').value,
+        includeSlides: document.getElementById('inc-slides').checked,
+        includeWorksheets: document.getElementById('inc-worksheets').checked,
+        includeExitTicket: document.getElementById('inc-exit').checked,
+        includeHomework: document.getElementById('inc-homework').checked
+      };
+      
+      document.getElementById('create-view').classList.add('hidden');
+      document.getElementById('generating-view').classList.remove('hidden');
+      
+      const statusEl = document.getElementById('gen-status');
+      const progressBar = document.getElementById('progress-bar');
+      const hintEl = document.getElementById('gen-hint');
+      
+      const statuses = [
+        'Connecting to AI...',
+        'Analysing curriculum requirements...',
+        'Structuring learning objectives...',
+        'Generating differentiated content...',
+        'Building worksheets...',
+        'Finalising lesson...'
+      ];
+      
+      let progress = 10;
+      progressBar.style.width = progress + '%';
+      
+      // Animate progress while waiting
+      const interval = setInterval(() => {
+        progress = Math.min(progress + 8, 90);
+        progressBar.style.width = progress + '%';
+        const idx = Math.min(Math.floor(progress / 15), statuses.length - 1);
+        statusEl.textContent = statuses[idx];
+      }, 800);
+      
+      if (payload.language === 'Afrikaans') {
+        hintEl.textContent = 'Generating in Afrikaans...';
+      } else {
+        hintEl.textContent = '';
+      }
+      
+      try {
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        
+        clearInterval(interval);
+        progressBar.style.width = '100%';
+        
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || 'Generation failed');
+        }
+        
+        const data = await res.json();
+        const lesson = data.lesson;
+        
+        // Show result
+        document.getElementById('generating-view').classList.add('hidden');
+        document.getElementById('result-view').classList.remove('hidden');
+        
+        document.getElementById('result-title').textContent = lesson.title || topic;
+        document.getElementById('result-meta').textContent = 
+          `${lesson.year || payload.year} · ${lesson.subject || payload.subject} · ${lesson.language || payload.language}`;
+        
+        if (data.mock) {
+          document.getElementById('mock-banner').classList.remove('hidden');
+        } else {
+          document.getElementById('mock-banner').classList.add('hidden');
+        }
+        
+        // Render slides
+        renderSlides(lesson.slides || []);
+        
+        // Render worksheets
+        renderWorksheets(lesson.worksheets || {});
+        
+        // Render exit ticket
+        renderExitTicket(lesson.exitTicket || {});
+        
+        showTab('slides');
+        
+      } catch (err) {
+        clearInterval(interval);
+        console.error(err);
+        statusEl.textContent = 'Error: ' + err.message;
+        progressBar.style.width = '100%';
+        progressBar.classList.remove('from-brand-500', 'to-accent-500');
+        progressBar.classList.add('bg-red-500');
+        
+        setTimeout(() => {
+          document.getElementById('generating-view').classList.add('hidden');
+          document.getElementById('create-view').classList.remove('hidden');
+          progressBar.classList.add('from-brand-500', 'to-accent-500');
+          progressBar.classList.remove('bg-red-500');
+        }, 3000);
+      }
+    }
+    
+    function renderSlides(slides) {
+      const container = document.getElementById('content-slides');
+      const badgeColors = {
+        title: 'bg-sky-100 text-sky-700',
+        objectives: 'bg-brand-100 text-brand-700',
+        starter: 'bg-amber-100 text-amber-700',
+        content: 'bg-slate-100 text-slate-600',
+        activity: 'bg-emerald-100 text-emerald-700',
+        plenary: 'bg-violet-100 text-violet-700',
+        other: 'bg-slate-100 text-slate-600'
+      };
+      
+      container.innerHTML = slides.map((slide, i) => {
+        let body = '';
+        if (slide.items && slide.items.length) {
+          body = `<ul class="space-y-2 mt-3">${slide.items.map(item => 
+            `<li class="flex gap-2"><span class="text-brand-500 font-bold">•</span><span>${item}</span></li>`
+          ).join('')}</ul>`;
+        } else if (slide.content) {
+          body = `<p class="mt-3 text-slate-600 leading-relaxed">${slide.content}</p>`;
+        }
+        
+        if (slide.type === 'title') {
+          return `
+            <div class="rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 text-white p-8 animate-slide-up" style="animation-delay: ${i * 0.06}s">
+              <div class="text-sm font-medium opacity-80 mb-2">Slide ${i + 1}</div>
+              <h2 class="text-2xl sm:text-3xl font-bold mb-2">${slide.title || ''}</h2>
+              <p class="text-lg opacity-90">${slide.content || ''}</p>
+            </div>
+          `;
+        }
+        
+        return `
+          <div class="bg-white rounded-xl border border-slate-200 p-6 animate-slide-up hover:border-brand-200 transition" style="animation-delay: ${i * 0.06}s">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-xs font-medium text-slate-400">Slide ${i + 1}</span>
+              <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${badgeColors[slide.type] || badgeColors.other}">${slide.type || 'content'}</span>
+            </div>
+            <h3 class="font-bold text-lg text-slate-900">${slide.title || ''}</h3>
+            ${body}
+          </div>
+        `;
+      }).join('');
+    }
+    
+    function renderWorksheets(ws) {
+      const grid = document.getElementById('worksheets-grid');
+      const tiers = [
+        { key: 'scaffold', label: 'SCAFFOLD', color: 'text-emerald-600', border: 'border-slate-200' },
+        { key: 'core', label: 'CORE', color: 'text-brand-600', border: 'border-brand-300 bg-brand-50/30' },
+        { key: 'stretch', label: 'STRETCH', color: 'text-accent-600', border: 'border-slate-200' }
+      ];
+      
+      grid.innerHTML = tiers.map(tier => {
+        const data = ws[tier.key] || {};
+        const questions = (data.questions || []).map(q => `<li class="text-sm text-slate-600">• ${q}</li>`).join('');
+        return `
+          <div class="border ${tier.border} rounded-xl p-5">
+            <div class="text-xs font-semibold ${tier.color} mb-1">${tier.label}</div>
+            <div class="font-medium mb-1">${data.title || tier.label}</div>
+            <p class="text-sm text-slate-500 mb-3">${data.description || ''}</p>
+            <ul class="space-y-1.5">${questions}</ul>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    function renderExitTicket(et) {
+      const container = document.getElementById('exit-content');
+      const questions = (et.questions || []).map((q, i) => 
+        `<li class="flex gap-2"><span class="font-semibold text-brand-600">${i + 1}.</span><span>${q}</span></li>`
+      ).join('');
+      
+      container.innerHTML = `
+        <h3 class="font-bold text-lg mb-4">${et.title || 'Exit Ticket'}</h3>
+        <ol class="space-y-3 text-slate-700 mb-6">${questions}</ol>
+        ${et.teacherNote ? `<div class="p-4 bg-slate-50 rounded-xl text-sm text-slate-600"><strong>Teacher note:</strong> ${et.teacherNote}</div>` : ''}
+      `;
+    }
+    
+    // Init
+    checkHealth();
+  </script>
+</body>
+</html>
