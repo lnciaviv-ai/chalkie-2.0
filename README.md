@@ -2,83 +2,91 @@
 
 AI Lesson Generator — better than Chalkie, with full **Afrikaans** support.
 
-Create curriculum-aligned lesson slides, differentiated worksheets (Scaffold / Core / Stretch), and exit tickets in English or Afrikaans in seconds.
+Uses **Groq** (fast & free tier) by default. Also works with OpenAI.
 
-## Features
+---
 
-- Real AI generation (OpenAI GPT-4o-mini)
-- Full **Afrikaans** language support
-- Differentiated worksheets
-- CAPS (South Africa) + major international curricula
-- Clean modern UI
-- Works in demo mode without an API key
+## Deploy to Render.com with your Groq key
 
-## Deploy to Render.com (Free tier works)
-
-### 1. Push this folder to a GitHub repository
+### 1. Push this folder to GitHub
 
 ```bash
 cd lessonforge-render
 git init
 git add .
-git commit -m "LessonForge - AI lesson generator with Afrikaans"
+git commit -m "LessonForge with Groq + Afrikaans"
 # Create a new repo on GitHub, then:
 git remote add origin https://github.com/YOUR_USERNAME/lessonforge.git
+git branch -M main
 git push -u origin main
 ```
 
-### 2. Create a new Web Service on Render
+### 2. Create a Web Service on Render
 
-1. Go to [https://dashboard.render.com](https://dashboard.render.com)
-2. Click **New +** → **Web Service**
-3. Connect your GitHub repo
+1. Go to https://dashboard.render.com  
+2. **New +** → **Web Service**  
+3. Connect your GitHub repo  
 4. Settings:
-   - **Name**: `lessonforge` (or whatever you like)
+   - **Name**: `lessonforge`
    - **Runtime**: Node
    - **Build Command**: `npm install`
    - **Start Command**: `npm start`
    - **Instance Type**: Free
 
-### 3. Add Environment Variable
+### 3. Add Environment Variable (this is the important part)
 
-In the Render dashboard → your service → **Environment**:
+In Render → your service → **Environment** → **Add Environment Variable**:
 
-| Key              | Value                          |
-|------------------|--------------------------------|
-| `OPENAI_API_KEY` | Your OpenAI API key (`sk-...`) |
+| Key            | Value                          |
+|----------------|--------------------------------|
+| `GROQ_API_KEY` | your Groq key (starts with `gsk_...`) |
 
-Optional:
-| Key             | Value          |
-|-----------------|----------------|
-| `OPENAI_MODEL`  | `gpt-4o-mini`  |  (default, cheap & good)
+That’s it. Optional extras:
+
+| Key          | Value                        | Notes |
+|--------------|------------------------------|-------|
+| `GROQ_MODEL` | `llama-3.3-70b-versatile`    | Default – excellent quality |
+|              | `llama-3.1-8b-instant`       | Faster & cheaper |
+|              | `mixtral-8x7b-32768`         | Alternative |
 
 ### 4. Deploy
 
-Click **Create Web Service**. Render will build and deploy.
+Click **Create Web Service** (or **Manual Deploy** if updating).
 
 Your site will be live at:  
-`https://lessonforge-xxxx.onrender.com`
+`https://your-service-name.onrender.com`
 
-## Local development
+---
+
+## Local testing
 
 ```bash
 npm install
 cp .env.example .env
-# Edit .env and add your OPENAI_API_KEY
+# Edit .env and put your GROQ_API_KEY
 npm start
 ```
 
 Open http://localhost:3000
 
-## Without an OpenAI key
+---
 
-The app still works in **demo mode**. It returns high-quality sample lessons in both English and Afrikaans so you can test the full UI and flow.
+## How to get a free Groq key
 
-## Cost
+1. Go to https://console.groq.com  
+2. Sign up / log in  
+3. Create an API key  
+4. Copy the key (starts with `gsk_`)
 
-- Render Free tier is enough for light personal / classroom use.
-- OpenAI GPT-4o-mini is very cheap (roughly $0.15 – $0.60 per 1M tokens). A full lesson usually costs less than $0.01.
+Groq has a generous free tier — perfect for personal and classroom use.
 
-## Afrikaans support
+---
 
-When the user selects **Afrikaans**, the AI is instructed to generate the entire lesson (slides, worksheets, exit ticket, etc.) in natural South African Afrikaans, appropriate for the chosen grade.
+## Features
+
+- Real AI generation via Groq (or OpenAI)
+- Full **Afrikaans** language support
+- Differentiated worksheets (Scaffold / Core / Stretch)
+- CAPS (South Africa) + major international curricula
+- Works in demo mode even without a key
+- Never hard-fails — falls back to sample lessons if AI is unavailable

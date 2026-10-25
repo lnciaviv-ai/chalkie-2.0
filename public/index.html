@@ -157,7 +157,7 @@
               <svg class="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
             </div>
             <h3 class="text-lg font-bold mb-2">Real AI generation</h3>
-            <p class="text-slate-600 text-sm leading-relaxed">Powered by GPT-4o-mini. Full lessons, not templates. Works offline in demo mode if no API key.</p>
+            <p class="text-slate-600 text-sm leading-relaxed">Powered by Groq (Llama 3.3). Full lessons, not templates. Works offline in demo mode if no API key.</p>
           </div>
           
           <div class="card-hover bg-slate-50 border border-slate-100 rounded-2xl p-6">
@@ -211,13 +211,13 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
           <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">Simple pricing</h2>
-          <p class="text-lg text-slate-600">This is a self-hosted open prototype. Add your own OpenAI key.</p>
+          <p class="text-lg text-slate-600">This is a self-hosted open prototype. Add your own Groq key.</p>
         </div>
         
         <div class="max-w-md mx-auto bg-white rounded-2xl border-2 border-brand-500 p-8 shadow-xl shadow-brand-500/10">
           <div class="text-sm font-semibold text-brand-600 mb-1">Self-hosted</div>
           <div class="text-4xl font-extrabold mb-1">Free</div>
-          <div class="text-sm text-slate-500 mb-6">You only pay for OpenAI usage</div>
+          <div class="text-sm text-slate-500 mb-6">Free tier available with Groq</div>
           <ul class="space-y-3 text-sm text-slate-600 mb-8">
             <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span> Unlimited generation (your API key)</li>
             <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span> Full English + Afrikaans support</li>
@@ -407,7 +407,7 @@
         </div>
         
         <div id="mock-banner" class="hidden mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-800">
-          <strong>Demo mode:</strong> No OpenAI API key detected. Showing high-quality sample content. Add <code class="bg-amber-100 px-1 rounded">OPENAI_API_KEY</code> in your Render environment variables for real AI generation.
+          <strong>Demo mode:</strong> No Groq API key detected. Showing high-quality sample content. Add <code class="bg-amber-100 px-1 rounded">GROQ_API_KEY</code> in your Render environment variables for real AI generation.
         </div>
         
         <div class="flex gap-1 border-b border-slate-200 mb-6 overflow-x-auto">
@@ -438,7 +438,8 @@
         const data = await res.json();
         const el = document.getElementById('ai-status');
         if (data.aiEnabled) {
-          el.textContent = 'AI ready ✓';
+          const provider = data.provider === 'groq' ? 'Groq' : (data.provider === 'openai' ? 'OpenAI' : 'AI');
+          el.textContent = provider + ' ready ✓';
           el.className = 'text-xs font-medium text-emerald-700 px-3 py-1 rounded-full bg-emerald-50';
         } else {
           el.textContent = 'Demo mode (no API key)';
@@ -547,12 +548,19 @@
         clearInterval(interval);
         progressBar.style.width = '100%';
         
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || 'Generation failed');
+        // Even if status is not ok, try to parse JSON (server now always returns JSON)
+        let data;
+        try {
+          data = await res.json();
+        } catch (parseErr) {
+          throw new Error('Server returned invalid response. Are you running the Node server (npm start)?');
         }
         
-        const data = await res.json();
+        // If server returned an error field and no lesson, treat as failure
+        if (!data.lesson) {
+          throw new Error(data.error || data.details || 'Generation failed – no lesson returned');
+        }
+        
         const lesson = data.lesson;
         
         // Show result
@@ -563,10 +571,12 @@
         document.getElementById('result-meta').textContent = 
           `${lesson.year || payload.year} · ${lesson.subject || payload.subject} · ${lesson.language || payload.language}`;
         
+        const banner = document.getElementById('mock-banner');
         if (data.mock) {
-          document.getElementById('mock-banner').classList.remove('hidden');
+          banner.classList.remove('hidden');
+          banner.innerHTML = '<strong>Demo mode:</strong> ' + (data.message || 'Showing sample content. Add GROQ_API_KEY in Render environment variables for real AI generation.');
         } else {
-          document.getElementById('mock-banner').classList.add('hidden');
+          banner.classList.add('hidden');
         }
         
         // Render slides
@@ -583,7 +593,15 @@
       } catch (err) {
         clearInterval(interval);
         console.error(err);
-        statusEl.textContent = 'Error: ' + err.message;
+        
+        // Show clear message
+        let msg = err.message || 'Unknown error';
+        if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('Load failed')) {
+          msg = 'Cannot reach the server. You must run "npm start" and open http://localhost:3000 — do NOT open the HTML file directly.';
+        }
+        
+        statusEl.textContent = 'Error: ' + msg;
+        hintEl.textContent = 'Check the browser console (F12) for more details.';
         progressBar.style.width = '100%';
         progressBar.classList.remove('from-brand-500', 'to-accent-500');
         progressBar.classList.add('bg-red-500');
@@ -593,7 +611,9 @@
           document.getElementById('create-view').classList.remove('hidden');
           progressBar.classList.add('from-brand-500', 'to-accent-500');
           progressBar.classList.remove('bg-red-500');
-        }, 3000);
+          statusEl.textContent = 'Connecting to AI...';
+          hintEl.textContent = '';
+        }, 6000);
       }
     }
     

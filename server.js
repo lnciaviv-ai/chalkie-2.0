@@ -11,17 +11,31 @@ app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Initialize OpenAI (user must set OPENAI_API_KEY)
-const openai = process.env.OPENAI_API_KEY
-  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+// Prefer Groq, fall back to OpenAI
+// Groq uses OpenAI-compatible API: https://api.groq.com/openai/v1
+const GROQ_API_KEY = process.env.GROQ_API_KEY || process.env.OPENAI_API_KEY;
+const USE_GROQ = !!process.env.GROQ_API_KEY;
+
+const openai = GROQ_API_KEY
+  ? new OpenAI({
+      apiKey: GROQ_API_KEY,
+      baseURL: USE_GROQ ? 'https://api.groq.com/openai/v1' : undefined
+    })
   : null;
+
+// Good free/fast models on Groq
+const DEFAULT_MODEL = USE_GROQ
+  ? (process.env.GROQ_MODEL || 'llama-3.3-70b-versatile')
+  : (process.env.OPENAI_MODEL || 'gpt-4o-mini');
 
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
     aiEnabled: !!openai,
-    version: '1.0.0'
+    provider: USE_GROQ ? 'groq' : (GROQ_API_KEY ? 'openai' : 'none'),
+    model: DEFAULT_MODEL,
+    version: '1.1.0'
   });
 });
 
@@ -48,7 +62,7 @@ app.post('/api/generate', async (req, res) => {
       // Fallback mock response when no API key
       return res.json({
         mock: true,
-        message: 'No OPENAI_API_KEY set. Returning demo content. Add your key in Render environment variables for real AI generation.',
+        message: 'No GROQ_API_KEY set. Returning demo content. Add your Groq key in Render environment variables for real AI generation.',
         lesson: generateMockLesson(topic, year, subject, language)
       });
     }
@@ -129,13 +143,14 @@ Return a JSON object with this exact structure:
 Make the content accurate, age-appropriate, engaging, and tightly aligned to the stated curriculum. Include a good mix of explanation, activity and assessment.`;
 
     const completion = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+      model: DEFAULT_MODEL,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ],
       temperature: 0.7,
       max_tokens: 4000,
+      // Groq supports json_object on most recent models
       response_format: { type: 'json_object' }
     });
 
@@ -146,15 +161,22 @@ Make the content accurate, age-appropriate, engaging, and tightly aligned to the
       lesson = JSON.parse(content);
     } catch (parseErr) {
       console.error('JSON parse error:', parseErr);
-      return res.status(500).json({ error: 'Failed to parse AI response', raw: content });
+      // Fall back to mock instead of failing
+      return res.json({
+        mock: true,
+        message: 'AI response could not be parsed. Showing demo content.',
+        lesson: generateMockLesson(topic, year, subject, language)
+      });
     }
 
     res.json({ mock: false, lesson });
   } catch (err) {
-    console.error('Generation error:', err);
-    res.status(500).json({
-      error: 'Failed to generate lesson',
-      details: err.message
+    console.error('Generation error:', err.message || err);
+    // Never hard-fail — always return usable demo content
+    return res.json({
+      mock: true,
+      message: 'AI generation failed (' + (err.message || 'unknown error') + '). Showing demo content instead. Check your GROQ_API_KEY (or OPENAI_API_KEY).',
+      lesson: generateMockLesson(topic, year, subject, language)
     });
   }
 });
