@@ -548,15 +548,22 @@
         clearInterval(interval);
         progressBar.style.width = '100%';
         
-        // Even if status is not ok, try to parse JSON (server now always returns JSON)
+        const rawText = await res.text();
         let data;
         try {
-          data = await res.json();
+          data = JSON.parse(rawText);
         } catch (parseErr) {
-          throw new Error('Server returned invalid response. Are you running the Node server (npm start)?');
+          const snippet = (rawText || '').slice(0, 120).replace(/\s+/g, ' ');
+          if (res.status === 404 || snippet.includes('<!DOCTYPE') || snippet.includes('<html')) {
+            throw new Error(
+              'API not found (got HTML). On Render create a WEB SERVICE (not Static Site). Build: npm install | Start: npm start | Env: GROQ_API_KEY'
+            );
+          }
+          throw new Error(
+            'Invalid response (HTTP ' + res.status + '). Snippet: ' + (snippet || '(empty)') + '. Check Render logs.'
+          );
         }
         
-        // If server returned an error field and no lesson, treat as failure
         if (!data.lesson) {
           throw new Error(data.error || data.details || 'Generation failed – no lesson returned');
         }
