@@ -23,9 +23,9 @@ const openai = GROQ_API_KEY
     })
   : null;
 
-// Good free/fast models on Groq
+// Safe default models (llama-3.3 may not be available on all Groq accounts)
 const DEFAULT_MODEL = USE_GROQ
-  ? (process.env.GROQ_MODEL || 'llama-3.3-70b-versatile')
+  ? (process.env.GROQ_MODEL || 'llama-3.1-8b-instant')
   : (process.env.OPENAI_MODEL || 'gpt-4o-mini');
 
 // Health check
@@ -41,25 +41,25 @@ app.get('/api/health', (req, res) => {
 
 // Generate lesson endpoint
 app.post('/api/generate', async (req, res) => {
-  try {
-    const {
-      topic,
-      year,
-      curriculum,
-      subject,
-      language = 'English',
-      includeSlides = true,
-      includeWorksheets = true,
-      includeExitTicket = true,
-      includeHomework = false
-    } = req.body;
+  // Declare outside try so catch can always access them
+  const {
+    topic = '',
+    year = '',
+    curriculum = '',
+    subject = '',
+    language = 'English',
+    includeSlides = true,
+    includeWorksheets = true,
+    includeExitTicket = true,
+    includeHomework = false
+  } = req.body || {};
 
-    if (!topic || !topic.trim()) {
+  try {
+    if (!topic || !String(topic).trim()) {
       return res.status(400).json({ error: 'Topic is required' });
     }
 
     if (!openai) {
-      // Fallback mock response when no API key
       return res.json({
         mock: true,
         message: 'No GROQ_API_KEY set. Returning demo content. Add your Groq key in Render environment variables for real AI generation.',
@@ -150,7 +150,6 @@ Make the content accurate, age-appropriate, engaging, and tightly aligned to the
       ],
       temperature: 0.7,
       max_tokens: 4000,
-      // Groq supports json_object on most recent models
       response_format: { type: 'json_object' }
     });
 
@@ -161,7 +160,6 @@ Make the content accurate, age-appropriate, engaging, and tightly aligned to the
       lesson = JSON.parse(content);
     } catch (parseErr) {
       console.error('JSON parse error:', parseErr);
-      // Fall back to mock instead of failing
       return res.json({
         mock: true,
         message: 'AI response could not be parsed. Showing demo content.',
@@ -172,10 +170,10 @@ Make the content accurate, age-appropriate, engaging, and tightly aligned to the
     res.json({ mock: false, lesson });
   } catch (err) {
     console.error('Generation error:', err.message || err);
-    // Never hard-fail — always return usable demo content
+    // Never crash the process — always return usable content
     return res.json({
       mock: true,
-      message: 'AI generation failed (' + (err.message || 'unknown error') + '). Showing demo content instead. Check your GROQ_API_KEY (or OPENAI_API_KEY).',
+      message: 'AI generation failed (' + (err.message || 'unknown error') + '). Showing demo content instead. Check GROQ_API_KEY and GROQ_MODEL.',
       lesson: generateMockLesson(topic, year, subject, language)
     });
   }
